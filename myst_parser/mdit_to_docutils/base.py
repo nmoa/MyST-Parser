@@ -23,7 +23,7 @@ from typing import (
     Any,
     cast,
 )
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 import jinja2
 import yaml
@@ -1247,6 +1247,9 @@ class DocutilsRenderer(RendererProtocol):
         img_node = nodes.image()
         self.add_line_and_source_path(img_node, token)
         destination = cast(str, token.attrGet("src") or "")
+
+        if not REGEX_SCHEME.match(destination) and not destination.startswith("//"):
+            destination = unquote(destination)
 
         if self.md_env.get(
             "relative-images", None
