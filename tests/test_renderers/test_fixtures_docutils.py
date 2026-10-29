@@ -166,6 +166,7 @@ def test_image_uri_percent_decoding(image_path, expected_uri, monkeypatch):
     image = next(doctree.findall(nodes.image))
     assert image["uri"] == expected_uri
 
+
 def settings_from_cmdline(cmdline: str | None) -> dict[str, Any]:
     """Parse a docutils commandline into a settings dictionary"""
     if cmdline is None or not cmdline.strip():
