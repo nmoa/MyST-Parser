@@ -138,6 +138,35 @@ def test_syntax_extensions(file_params: ParamTestData, normalize_doctree_xml):
     )
 
 
+@pytest.mark.parametrize(
+    ("image_path", "expected_uri"),
+    [
+        ("images/diagram.png", "images/diagram.png"),
+        ("images/構成図.png", "images/構成図.png"),
+        ("図面/diagram.png", "図面/diagram.png"),
+        ("images/a%20b.png", "images/a b.png"),
+        ("images/100%25.png", "images/100%.png"),
+        (
+            "https://example.com/構成図.png",
+            "https://example.com/%E6%A7%8B%E6%88%90%E5%9B%B3.png",
+        ),
+        (
+            "//example.com/構成図.png",
+            "//example.com/%E6%A7%8B%E6%88%90%E5%9B%B3.png",
+        ),
+    ],
+)
+def test_image_uri_percent_decoding(image_path, expected_uri, monkeypatch):
+    """Decode local image paths without changing external image URLs."""
+    monkeypatch.setattr(Publisher, "apply_transforms", lambda self: None)
+    doctree = publish_doctree(
+        f"![example]({image_path})",
+        parser=Parser(),
+    )
+    image = next(doctree.findall(nodes.image))
+    assert image["uri"] == expected_uri
+
+
 def settings_from_cmdline(cmdline: str | None) -> dict[str, Any]:
     """Parse a docutils commandline into a settings dictionary"""
     if cmdline is None or not cmdline.strip():
